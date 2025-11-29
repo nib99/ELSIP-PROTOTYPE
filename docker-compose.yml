@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: elsip_db
+      POSTGRES_USER: elsip
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - elsip_net
+
+  api:
+    build: ./backend
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      PGUSER: elsip
+      PGPASSWORD: password
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: elsip_db
+      ADMIN_API_KEY: change-me
+    networks:
+      - elsip_net
+
+  # mobile (optional) - serves as placeholder for PWA/dev server
+  mobile:
+    build: ./mobile
+    ports:
+      - "8080:19002"
+    networks:
+      - elsip_net
+
+volumes:
+  pgdata:
+
+networks:
+  elsip_net:
